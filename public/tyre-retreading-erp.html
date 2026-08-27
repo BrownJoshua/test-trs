@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vulcan-Tech Tyre Retreading ERP | Only VC, Only RT & Double Process</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: white !important; color: black !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+  
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-xs no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black shadow">
+            <i data-lucide="disc" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight leading-tight">
+                VULCAN-TECH
+              </h1>
+              <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200">
+                ERP v2.4
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">
+              Commercial Tyre Retreading ERP • Only VC | Only RT | Double Process
+            </p>
+          </div>
+        </div>
+
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="sm:hidden p-2 text-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="sun" class="w-4 h-4 dark:hidden"></i>
+          <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+        </button>
+      </div>
+
+      <!-- Center & Right Controls -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end flex-wrap">
+        <!-- Role Toggle Pills -->
+        <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+          <button 
+            id="roleSupervisorBtn" 
+            onclick="setRole('SUPERVISOR')" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+          >
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span>Supervisor Portal</span>
+          </button>
+          <button 
+            id="roleTechnicianBtn" 
+            onclick="setRole('TECHNICIAN')" 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white"
+          >
+            <i data-lucide="wrench" class="w-3.5 h-3.5 text-purple-600"></i>
+            <span>Shopfloor Station</span>
+          </button>
+        </div>
+
+        <!-- New Job Button -->
+        <button 
+          onclick="openCreateJobModal()" 
+          class="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-lg shadow transition"
+        >
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>New Tyre Job</span>
+        </button>
+
+        <button 
+          onclick="window.print()" 
+          class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition"
+          title="Print active view"
+        >
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Print</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    
+    <!-- SUPERVISOR VIEW -->
+    <div id="supervisorView" class="space-y-6">
+      
+      <!-- Top KPI Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex justify-between items-center text-slate-500 text-xs font-semibold">
+            <span>Total WIP</span>
+            <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiTotalWip" class="text-2xl font-black font-mono text-slate-900 dark:text-white">6</span>
+            <span class="text-[11px] text-slate-400">Tyres</span>
+          </div>
+          <span class="text-[10px] text-blue-600 dark:text-blue-400 font-medium">Shopfloor queue</span>
+        </div>
+
+        <div class="bg-blue-50/50 dark:bg-blue-950/20 p-4 rounded-xl border border-blue-200 dark:border-blue-900 shadow-sm">
+          <div class="flex justify-between items-center text-blue-800 dark:text-blue-300 text-xs font-semibold">
+            <span>Only VC (Cold)</span>
+            <i data-lucide="disc" class="w-4 h-4 text-blue-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiVc" class="text-2xl font-black font-mono text-blue-700 dark:text-blue-300">3</span>
+            <span class="text-[11px] text-blue-500">Precured</span>
+          </div>
+          <span class="text-[10px] text-slate-500">Autoclave 105°C</span>
+        </div>
+
+        <div class="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-200 dark:border-amber-900 shadow-sm">
+          <div class="flex justify-between items-center text-amber-800 dark:text-amber-300 text-xs font-semibold">
+            <span>Only RT (Hot)</span>
+            <i data-lucide="flame" class="w-4 h-4 text-amber-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiRt" class="text-2xl font-black font-mono text-amber-700 dark:text-amber-300">2</span>
+            <span class="text-[11px] text-amber-500">Matrix Mold</span>
+          </div>
+          <span class="text-[10px] text-slate-500">Hot Press 152°C</span>
+        </div>
+
+        <div class="bg-purple-50/50 dark:bg-purple-950/20 p-4 rounded-xl border border-purple-200 dark:border-purple-900 shadow-sm">
+          <div class="flex justify-between items-center text-purple-800 dark:text-purple-300 text-xs font-semibold">
+            <span>Double Process</span>
+            <i data-lucide="gauge" class="w-4 h-4 text-purple-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiDouble" class="text-2xl font-black font-mono text-purple-700 dark:text-purple-300">1</span>
+            <span class="text-[11px] text-purple-500">RT + VC</span>
+          </div>
+          <span class="text-[10px] text-slate-500">Dual Curing Stage</span>
+        </div>
+
+        <div class="bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-900 shadow-sm">
+          <div class="flex justify-between items-center text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+            <span>Ready Gate Out</span>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiReady" class="text-2xl font-black font-mono text-emerald-700 dark:text-emerald-300">1</span>
+            <span class="text-[11px] text-emerald-500">QC Passed</span>
+          </div>
+          <span class="text-[10px] text-slate-500">Certified Warranty</span>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex justify-between items-center text-slate-500 text-xs font-semibold">
+            <span>Scrap / Reject</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1">
+            <span id="kpiScrap" class="text-2xl font-black font-mono text-rose-600">1</span>
+            <span class="text-[11px] text-slate-400">Casings</span>
+          </div>
+          <span class="text-[10px] text-rose-600 font-medium">Failed RMA Standard</span>
+        </div>
+      </div>
+
+      <!-- Process Stage Funnel -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+              Live Shop Floor Workstation Stage Allocation
+            </h3>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-xs" id="stageFunnelContainer">
+          <!-- Dynamically Rendered -->
+        </div>
+      </div>
+
+      <!-- Supervisor Navigation Tabs -->
+      <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <button onclick="setSupTab('JOBS')" id="supTabJobs" class="px-4 py-2 text-xs font-bold rounded-lg transition bg-blue-600 text-white shadow-xs">
+          Tyre Job Cards & WIP
+        </button>
+        <button onclick="setSupTab('CHAMBER')" id="supTabChamber" class="px-4 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Autoclaves & Curing Batches
+        </button>
+        <button onclick="setSupTab('INVENTORY')" id="supTabInv" class="px-4 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Raw Materials ERP
+        </button>
+        <button onclick="setSupTab('QUALITY')" id="supTabQuality" class="px-4 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          Quality & Yield Analytics
+        </button>
+      </div>
+
+      <!-- SUPERVISOR TAB 1: JOB CARD LIST -->
+      <div id="supContentJobs" class="space-y-4">
+        <!-- Filter bar -->
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-1.5 flex-wrap text-xs">
+            <span class="font-bold text-slate-500 mr-1 flex items-center gap-1"><i data-lucide="filter" class="w-3.5 h-3.5"></i> Process:</span>
+            <button onclick="filterByProcess('ALL')" id="procBtnAll" class="px-2.5 py-1 rounded-md font-semibold border bg-slate-900 text-white dark:bg-white dark:text-slate-900">All</button>
+            <button onclick="filterByProcess('ONLY_VC')" id="procBtnVc" class="px-2.5 py-1 rounded-md font-semibold border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300">Only VC</button>
+            <button onclick="filterByProcess('ONLY_RT')" id="procBtnRt" class="px-2.5 py-1 rounded-md font-semibold border bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300">Only RT</button>
+            <button onclick="filterByProcess('DOUBLE_PROCESS')" id="procBtnDouble" class="px-2.5 py-1 rounded-md font-semibold border bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300">Double Process</button>
+          </div>
+
+          <div class="relative w-full sm:w-64">
+            <input 
+              type="text" 
+              id="jobSearchInput" 
+              oninput="handleJobSearch()" 
+              placeholder="Search S/N, Job #, Fleet..." 
+              class="w-full pl-3 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+                <tr>
+                  <th class="py-3 px-4">Job # & Serial</th>
+                  <th class="py-3 px-4">Customer / Fleet</th>
+                  <th class="py-3 px-4">Tyre Specification</th>
+                  <th class="py-3 px-4">Process Type</th>
+                  <th class="py-3 px-4">Stage & Progress</th>
+                  <th class="py-3 px-4">Due Date</th>
+                  <th class="py-3 px-4 text-right">Price</th>
+                  <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jobTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                <!-- Dynamically rendered rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPERVISOR TAB 2: CHAMBER BATCHES -->
+      <div id="supContentChamber" class="hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="chamberBatchesGrid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- SUPERVISOR TAB 3: INVENTORY -->
+      <div id="supContentInv" class="hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="inventoryGrid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- SUPERVISOR TAB 4: QUALITY ANALYTICS -->
+      <div id="supContentQuality" class="hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/20 space-y-2">
+            <h4 class="font-bold text-blue-800 dark:text-blue-300 text-xs uppercase tracking-wider">ONLY VC (Cold Precured)</h4>
+            <div class="text-2xl font-mono font-bold text-slate-900 dark:text-white">98.2% Yield</div>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Autoclave cure profile (105°C @ 6.2 bar). Low heat degradation preserving radial casing plies.</p>
+          </div>
+          <div class="p-5 rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50/40 dark:bg-amber-950/20 space-y-2">
+            <h4 class="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase tracking-wider">ONLY RT (Hot Mold Matrix)</h4>
+            <div class="text-2xl font-mono font-bold text-slate-900 dark:text-white">94.8% Yield</div>
+            <p class="text-xs text-slate-600 dark:text-slate-400">High-temperature mold matrix (152°C @ 14.5 bar). Deep lug and mining traction application.</p>
+          </div>
+          <div class="p-5 rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50/40 dark:bg-purple-950/20 space-y-2">
+            <h4 class="font-bold text-purple-800 dark:text-purple-300 text-xs uppercase tracking-wider">DOUBLE PROCESS (RT + VC)</h4>
+            <div class="text-2xl font-mono font-bold text-slate-900 dark:text-white">91.5% Yield</div>
+            <p class="text-xs text-slate-600 dark:text-slate-400">Stage 1 spot vulcanization for severe crown/sidewall repairs + Stage 2 cold autoclave bonding.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TECHNICIAN SHOPFLOOR WORKSTATION VIEW -->
+    <div id="technicianView" class="hidden space-y-6">
+      <!-- Workstation Header & Bay Selector -->
+      <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i data-lucide="wrench" class="w-5 h-5 text-purple-600"></i>
+              Shop Floor Workstation Bay Control
+            </h2>
+            <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+              Tech: Ramesh K. (RMA Level 3)
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            Execute inspection, buffing measurements, injury skiving, cushion gum building, curing chamber and final QC testing.
+          </p>
+        </div>
+
+        <select id="techStationFilter" onchange="filterTechJobs()" class="text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold">
+          <option value="ALL">All Stations (All Jobs)</option>
+          <option value="INITIAL_INSPECTION">Bay 1: Initial Casing NDT Inspection</option>
+          <option value="BUFFING">Bay 2: CNC / Manual Buffing & Crown Texture</option>
+          <option value="SKIVING_REPAIR">Bay 3: Injury Skiving & Radial Patch Application</option>
+          <option value="SECTION_CURE">Bay 4: Hot Spot Matrix Cure (Double Process)</option>
+          <option value="BUILDING">Bay 5: Cushion Gum & Precured Tread Builder</option>
+          <option value="CURING">Bay 6: Autoclave & Press Chamber</option>
+          <option value="FINAL_QC">Bay 7: Final Holographic QC & Warranty Tag</option>
+        </select>
+      </div>
+
+      <!-- Active Job Processing Screen (Split Layout) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6" id="techActiveWorkspace">
+        <!-- Left: Queue of Jobs -->
+        <div class="lg:col-span-4 space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+            Workstation Queue (<span id="techQueueCount">0</span> Tyres)
+          </h3>
+          <div id="techQueueList" class="space-y-2.5 max-h-[750px] overflow-y-auto pr-1">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+
+        <!-- Right: Active Execution Panel -->
+        <div class="lg:col-span-8 space-y-4" id="techActionPanel">
+          <!-- Dynamic action panel -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: CREATE JOB CARD -->
+  <div id="createJobModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
+          Intake Registration: New Tyre Job Card
+        </h3>
+        <button onclick="closeModal('createJobModal')" class="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleCreateJobSubmit(event)" class="space-y-4 text-xs">
+        <!-- Process Selection -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase tracking-wider text-[11px]">
+            1. Select Engineering Process Workflow *
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="p-3 rounded-lg border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer block">
+              <input type="radio" name="procSelect" value="ONLY_VC" checked class="mr-1 text-blue-600" />
+              <strong class="text-blue-700 dark:text-blue-300 block">Only VC</strong>
+              <span class="text-[10px] text-slate-500">Cold Precured Chamber</span>
+            </label>
+            <label class="p-3 rounded-lg border border-slate-300 dark:border-slate-700 cursor-pointer block">
+              <input type="radio" name="procSelect" value="ONLY_RT" class="mr-1 text-amber-600" />
+              <strong class="text-amber-700 dark:text-amber-300 block">Only RT</strong>
+              <span class="text-[10px] text-slate-500">Hot Mold Matrix</span>
+            </label>
+            <label class="p-3 rounded-lg border border-slate-300 dark:border-slate-700 cursor-pointer block">
+              <input type="radio" name="procSelect" value="DOUBLE_PROCESS" class="mr-1 text-purple-600" />
+              <strong class="text-purple-700 dark:text-purple-300 block">Double Process</strong>
+              <span class="text-[10px] text-slate-500">Spot RT + Precure VC</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+          <div>
+            <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Customer / Fleet Name *</label>
+            <input type="text" id="modalCustomerName" required value="Highway Express Logistics" class="w-full px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Fleet Account #</label>
+            <input type="text" id="modalFleetId" value="FLT-KA-441" class="w-full px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
+          </div>
+        </div>
+
+        <!-- Tyre Spec -->
+        <div class="grid grid-cols-3 gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+          <div>
+            <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Tyre Serial Number *</label>
+            <input type="text" id="modalSerial" required value="BS99401284" class="w-full px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Brand & Casing *</label>
+            <input type="text" id="modalBrand" required value="Bridgestone R150" class="w-full px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Tyre Size *</label>
+            <select id="modalSize" class="w-full px-3 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800">
+              <option value="295/80R22.5">295/80R22.5 (Tubeless)</option>
+              <option value="11R22.5">11R22.5 (Truck/Bus)</option>
+              <option value="10.00-20">10.00-20 (Tube Type)</option>
+              <option value="12.00R20">12.00R20 (Dumper / Mining)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <button type="button" onclick="closeModal('createJobModal')" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow">
+            Create & Issue Job Card
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PRINT CERTIFICATE & JOB CARD -->
+  <div id="printJobModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white text-slate-900 border border-slate-300 rounded-xl max-w-3xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 no-print">
+        <h3 class="font-bold text-sm">Print Production Job Card & Warranty Certificate</h3>
+        <div class="flex gap-2">
+          <button onclick="window.print()" class="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded">
+            Print Document
+          </button>
+          <button onclick="closeModal('printJobModal')" class="text-slate-400 font-bold px-2">✕</button>
+        </div>
+      </div>
+
+      <div id="printableArea" class="space-y-4 text-xs font-sans">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT STATE ENGINE -->
+  <script>
+    // Initial State Database
+    let state = {
+      role: 'SUPERVISOR',
+      activeSupTab: 'JOBS',
+      processFilter: 'ALL',
+      searchQuery: '',
+      selectedTechJobId: 'JC-2026-081',
+      jobs: [
+        {
+          id: 'JC-2026-081',
+          jobNo: 'JC-2026-081',
+          customerName: 'Highway Express Logistics',
+          customerPhone: '+91 98450 11223',
+          fleetId: 'FLT-KA-441',
+          vehicleNo: 'KA-04-E-9912',
+          brand: 'Bridgestone R150',
+          size: '295/80R22.5',
+          tyreSerial: 'BS8829104',
+          casingType: 'RADIAL',
+          casingCondition: 'Grade A (1st Retread)',
+          processType: 'ONLY_VC',
+          treadPattern: 'RIB Highway 15mm (Cold Precured)',
+          currentStage: 'INITIAL_INSPECTION',
+          status: 'IN_PROGRESS',
+          estimatedPrice: 6200,
+          targetDeliveryDate: '2026-08-30',
+          injuries: [{ id: 'inj-1', location: 'CROWN', sizeMm: 6, repairType: 'RADIAL_PATCH_RP12' }],
+          metrics: { initialTreadDepthMm: 2.1, buffedCircumferenceMm: 3185, cushionGumBatch: 'CG-992' }
+        },
+        {
+          id: 'JC-2026-082',
+          jobNo: 'JC-2026-082',
+          customerName: 'Deccan Mining Haulers',
+          customerPhone: '+91 94481 22345',
+          fleetId: 'DM-MINING-08',
+          vehicleNo: 'MH-12-RN-4401',
+          brand: 'Apollo EnduTrax',
+          size: '12.00R20',
+          tyreSerial: 'AP9021844',
+          casingType: 'RADIAL',
+          casingCondition: 'Grade B (2nd Retread)',
+          processType: 'ONLY_RT',
+          treadPattern: 'LUG Heavy Mining 20mm (Hot Mold)',
+          currentStage: 'BUILDING',
+          status: 'IN_PROGRESS',
+          estimatedPrice: 7100,
+          targetDeliveryDate: '2026-08-29',
+          injuries: [],
+          metrics: { initialTreadDepthMm: 1.8, buffedCircumferenceMm: 3240, cushionGumBatch: 'CG-880' }
+        },
+        {
+          id: 'JC-2026-083',
+          jobNo: 'JC-2026-083',
+          customerName: 'Trans-India Intercity Express',
+          customerPhone: '+91 98800 77412',
+          fleetId: 'TI-BUS-102',
+          vehicleNo: 'KA-51-F-3388',
+          brand: 'Michelin X Multi',
+          size: '295/80R22.5',
+          tyreSerial: 'MI4910283',
+          casingType: 'RADIAL',
+          casingCondition: 'Grade C (Major Repair Casing)',
+          processType: 'DOUBLE_PROCESS',
+          treadPattern: 'TRACTION Super 19mm (RT+VC)',
+          currentStage: 'SECTION_CURE',
+          status: 'IN_PROGRESS',
+          estimatedPrice: 8800,
+          targetDeliveryDate: '2026-08-29',
+          injuries: [{ id: 'inj-2', location: 'SHOULDER', sizeMm: 22, repairType: 'RADIAL_PATCH_RP20' }],
+          metrics: { initialTreadDepthMm: 2.0, buffedCircumferenceMm: 3180, sectionCureTempC: 150, sectionCureDurationMin: 45 }
+        },
+        {
+          id: 'JC-2026-084',
+          jobNo: 'JC-2026-084',
+          customerName: 'Metro Concrete ReadyMix',
+          customerPhone: '+91 97401 55990',
+          fleetId: 'MCR-MIX-14',
+          vehicleNo: 'KA-01-AB-1200',
+          brand: 'JK Tyre Jetsteel',
+          size: '11.00-20',
+          tyreSerial: 'JK1198302',
+          casingType: 'BIAS/NYLON',
+          casingCondition: 'Grade A (1st Retread)',
+          processType: 'ONLY_VC',
+          treadPattern: 'RIB Highway 15mm (Cold Precured)',
+          currentStage: 'CURING',
+          status: 'IN_PROGRESS',
+          estimatedPrice: 5900,
+          targetDeliveryDate: '2026-08-28',
+          injuries: [],
+          metrics: { cureTempC: 105, curePressureBar: 6.2, curingBatchNo: 'VC-BATCH-104' }
+        },
+        {
+          id: 'JC-2026-085',
+          jobNo: 'JC-2026-085',
+          customerName: 'Southern Star Logistics',
+          customerPhone: '+91 98455 66778',
+          fleetId: 'SSL-TRUCK-88',
+          vehicleNo: 'TN-09-CD-4512',
+          brand: 'Bridgestone R150',
+          size: '295/80R22.5',
+          tyreSerial: 'BS7730192',
+          casingType: 'RADIAL',
+          casingCondition: 'Grade A (1st Retread)',
+          processType: 'ONLY_VC',
+          treadPattern: 'RIB Highway 15mm (Cold Precured)',
+          currentStage: 'FINAL_QC',
+          status: 'READY_FOR_DELIVERY',
+          estimatedPrice: 6200,
+          targetDeliveryDate: '2026-08-27',
+          injuries: [],
+          metrics: { finalTreadDepthMm: 15.2, balanceChecked: true, qcCertificateNo: 'QC-2026-0419' }
+        },
+        {
+          id: 'JC-2026-080',
+          jobNo: 'JC-2026-080',
+          customerName: 'Reddy Earthmovers',
+          customerPhone: '+91 99001 11223',
+          fleetId: 'REM-DUMP-04',
+          vehicleNo: 'KA-05-AA-7890',
+          brand: 'Apollo EnduTrax',
+          size: '12.00R20',
+          tyreSerial: 'AP5540192',
+          casingType: 'RADIAL',
+          casingCondition: 'Grade C (Major Repair Casing)',
+          processType: 'ONLY_RT',
+          treadPattern: 'LUG Heavy Mining 20mm',
+          currentStage: 'REJECTED',
+          status: 'SCRAP',
+          rejectReason: 'Crown separation and severe zipper rupture found during buffing.',
+          rejectStage: 'BUFFING',
+          estimatedPrice: 7100,
+          targetDeliveryDate: '2026-08-26',
+          injuries: [],
+          metrics: {}
+        }
+      ],
+      curingBatches: [
+        {
+          id: 'batch-1',
+          batchNo: 'VC-BATCH-104',
+          chamberName: 'Autoclave Curing Chamber VC-01',
+          processType: 'ONLY_VC',
+          capacity: 16,
+          tyreIds: ['JC-2026-084'],
+          status: 'CURING',
+          targetTempC: 105,
+          currentTempC: 105,
+          targetPressureBar: 6.2,
+          currentPressureBar: 6.2,
+          targetDurationMin: 210,
+          elapsedMinutes: 140
+        },
+        {
+          id: 'batch-2',
+          batchNo: 'RT-MOLD-02',
+          chamberName: 'Segmented Matrix Hot Press RT-02',
+          processType: 'ONLY_RT',
+          capacity: 2,
+          tyreIds: [],
+          status: 'QUEUED',
+          targetTempC: 152,
+          currentTempC: 28,
+          targetPressureBar: 14.5,
+          currentPressureBar: 0,
+          targetDurationMin: 90,
+          elapsedMinutes: 0
+        }
+      ],
+      inventory: [
+        { id: '1', code: 'TR-RIB-225', name: 'Precured Tread Rubber (RIB 15mm)', stock: 48, unit: 'Rolls', minThreshold: 15, cost: 2400, process: 'ONLY_VC' },
+        { id: '2', code: 'TR-LUG-HOT', name: 'Camelback Uncured Slab (LUG 20mm)', stock: 32, unit: 'Slabs', minThreshold: 10, cost: 2800, process: 'ONLY_RT' },
+        { id: '3', code: 'CG-12MM', name: 'Cushion Gum Roll 1.2mm x 230mm', stock: 18, unit: 'Rolls', minThreshold: 8, cost: 1650, process: 'ALL' },
+        { id: '4', code: 'CEM-VULC', name: 'Fast Dry Vulcanizing Cement (5L)', stock: 24, unit: 'Cans', minThreshold: 10, cost: 1200, process: 'ALL' },
+        { id: '5', code: 'RP-20-RAD', name: 'Radial Repair Patch Unit RP-20', stock: 85, unit: 'Pcs', minThreshold: 30, cost: 350, process: 'DOUBLE_PROCESS' }
+      ]
+    };
+
+    // Navigation & Tab Switchers
+    function setRole(role) {
+      state.role = role;
+      document.getElementById('supervisorView').classList.toggle('hidden', role !== 'SUPERVISOR');
+      document.getElementById('technicianView').classList.toggle('hidden', role !== 'TECHNICIAN');
+      
+      const supBtn = document.getElementById('roleSupervisorBtn');
+      const techBtn = document.getElementById('roleTechnicianBtn');
+      if (role === 'SUPERVISOR') {
+        supBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs';
+        techBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white';
+      } else {
+        techBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs';
+        supBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition text-slate-500 hover:text-slate-900 dark:hover:text-white';
+      }
+      renderAll();
+    }
+
+    function setSupTab(tab) {
+      state.activeSupTab = tab;
+      const tabs = ['Jobs', 'Chamber', 'Inv', 'Quality'];
+      tabs.forEach(t => {
+        const isCur = t.toUpperCase() === tab;
+        document.getElementById(`supContent${t}`).classList.toggle('hidden', !isCur);
+        const btn = document.getElementById(`supTab${t}`);
+        if (btn) {
+          btn.className = isCur 
+            ? 'px-4 py-2 text-xs font-bold rounded-lg transition bg-blue-600 text-white shadow-xs'
+            : 'px-4 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800';
+        }
+      });
+    }
+
+    function filterByProcess(proc) {
+      state.processFilter = proc;
+      ['All', 'Vc', 'Rt', 'Double'].forEach(p => {
+        const btn = document.getElementById(`procBtn${p}`);
+        if (p.toUpperCase() === proc || (proc === 'DOUBLE_PROCESS' && p === 'Double')) {
+          btn.className = 'px-2.5 py-1 rounded-md font-semibold border bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-md font-semibold border bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+        }
+      });
+      renderJobsTable();
+    }
+
+    function handleJobSearch() {
+      state.searchQuery = document.getElementById('jobSearchInput').value.toLowerCase();
+      renderJobsTable();
+    }
+
+    // Modal Handlers
+    function openCreateJobModal() {
+      document.getElementById('createJobModal').classList.remove('hidden');
+    }
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function handleCreateJobSubmit(e) {
+      e.preventDefault();
+      const proc = document.querySelector('input[name="procSelect"]:checked').value;
+      const newJob = {
+        id: `JC-2026-${Math.floor(100 + Math.random() * 900)}`,
+        jobNo: `JC-2026-${Math.floor(100 + Math.random() * 900)}`,
+        customerName: document.getElementById('modalCustomerName').value,
+        customerPhone: '+91 98450 11223',
+        fleetId: document.getElementById('modalFleetId').value,
+        vehicleNo: 'KA-04-MB-7789',
+        brand: document.getElementById('modalBrand').value,
+        size: document.getElementById('modalSize').value,
+        tyreSerial: document.getElementById('modalSerial').value,
+        casingType: 'RADIAL',
+        casingCondition: 'Grade A (1st Retread)',
+        processType: proc,
+        treadPattern: proc === 'ONLY_VC' ? 'RIB Highway 15mm (Cold Precured)' : proc === 'ONLY_RT' ? 'LUG Heavy Mining 20mm (Hot Mold)' : 'TRACTION Super 19mm (RT+VC)',
+        currentStage: 'INITIAL_INSPECTION',
+        status: 'IN_PROGRESS',
+        estimatedPrice: proc === 'ONLY_VC' ? 6200 : proc === 'ONLY_RT' ? 6900 : 8800,
+        targetDeliveryDate: '2026-08-30',
+        injuries: [],
+        metrics: {}
+      };
+
+      state.jobs.unshift(newJob);
+      closeModal('createJobModal');
+      renderAll();
+      openPrintModal(newJob.id);
+    }
+
+    function openPrintModal(jobId) {
+      const job = state.jobs.find(j => j.id === jobId);
+      if (!job) return;
+
+      const area = document.getElementById('printableArea');
+      area.innerHTML = `
+        <div class="border-b-2 border-slate-900 pb-3 flex justify-between items-start">
+          <div>
+            <h2 class="text-base font-black uppercase text-slate-900">VULCAN-TECH TYRE RETREADING SYSTEMS</h2>
+            <p class="text-[11px] text-slate-600 font-medium">ISO 9001:2015 & RMA Certified Commercial Plant</p>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-slate-500 font-bold uppercase">JOB CARD NUMBER</div>
+            <div class="text-sm font-black font-mono">${job.jobNo}</div>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded border border-slate-900 bg-slate-50 flex justify-between items-center">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">WORKFLOW SPECIFICATION:</span>
+            <strong class="text-sm text-blue-700">${job.processType === 'ONLY_VC' ? 'Only VC (Cold Precured Vacuum Curing)' : job.processType === 'ONLY_RT' ? 'Only RT (Hot Matrix Mold Retreading)' : 'Double Process (Dual-Stage RT Spot + Cold VC)'}</strong>
+          </div>
+          <span class="font-mono text-xs font-bold text-slate-700">₹${job.estimatedPrice.toLocaleString()}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 border p-3 rounded">
+          <div>
+            <div class="font-bold text-slate-500 uppercase text-[10px]">Customer Details</div>
+            <div class="font-bold text-sm text-slate-900">${job.customerName}</div>
+            <div>Fleet: <strong>${job.fleetId || 'N/A'}</strong></div>
+          </div>
+          <div>
+            <div class="font-bold text-slate-500 uppercase text-[10px]">Tyre Casing Spec</div>
+            <div class="font-bold text-sm text-slate-900">${job.brand} (${job.size})</div>
+            <div>Serial: <strong class="font-mono text-blue-600">${job.tyreSerial}</strong></div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-emerald-50 border border-emerald-300 rounded text-emerald-900 space-y-1">
+          <div class="font-bold flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-700"></i> RMA QUALITY & RETREAD WARRANTY CERTIFICATE
+          </div>
+          <p class="text-[10px] leading-relaxed text-slate-700">
+            This certifies Tyre S/N <strong>${job.tyreSerial}</strong> has been processed strictly compliant with RMA standards under certified temperature and pressure cycles.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 pt-6 border-t text-center text-[10px]">
+          <div class="border-t border-dashed pt-1">Plant Operator</div>
+          <div class="border-t border-dashed pt-1">QC Master Inspector</div>
+          <div class="border-t border-dashed pt-1">Customer Receiver</div>
+        </div>
+      `;
+
+      lucide.createIcons();
+      document.getElementById('printJobModal').classList.remove('hidden');
+    }
+
+    // Rendering Logic
+    function renderKPIs() {
+      const wip = state.jobs.filter(j => j.status === 'IN_PROGRESS');
+      document.getElementById('kpiTotalWip').textContent = wip.length;
+      document.getElementById('kpiVc').textContent = wip.filter(j => j.processType === 'ONLY_VC').length;
+      document.getElementById('kpiRt').textContent = wip.filter(j => j.processType === 'ONLY_RT').length;
+      document.getElementById('kpiDouble').textContent = wip.filter(j => j.processType === 'DOUBLE_PROCESS').length;
+      document.getElementById('kpiReady').textContent = state.jobs.filter(j => j.status === 'READY_FOR_DELIVERY').length;
+      document.getElementById('kpiScrap').textContent = state.jobs.filter(j => j.status === 'SCRAP').length;
+    }
+
+    function renderStageFunnel() {
+      const stages = [
+        { id: 'INITIAL_INSPECTION', label: '1. Inspect' },
+        { id: 'BUFFING', label: '2. Buffing' },
+        { id: 'SKIVING_REPAIR', label: '3. Skiving' },
+        { id: 'SECTION_CURE', label: '4. Section RT' },
+        { id: 'BUILDING', label: '5. Building' },
+        { id: 'CURING', label: '6. Curing' },
+        { id: 'FINAL_QC', label: '7. Final QC' }
+      ];
+
+      const container = document.getElementById('stageFunnelContainer');
+      container.innerHTML = stages.map(stg => {
+        const count = state.jobs.filter(j => j.currentStage === stg.id && j.status === 'IN_PROGRESS').length;
+        return `
+          <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <span class="font-bold text-slate-700 dark:text-slate-300 text-[11px]">${stg.label}</span>
+            <span class="font-mono font-bold px-1.5 py-0.5 rounded text-[11px] ${count > 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}">
+              ${count}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderJobsTable() {
+      const tbody = document.getElementById('jobTableBody');
+      const filtered = state.jobs.filter(j => {
+        if (state.processFilter !== 'ALL' && j.processType !== state.processFilter) return false;
+        if (state.searchQuery) {
+          const q = state.searchQuery;
+          const m1 = j.jobNo.toLowerCase().includes(q);
+          const m2 = j.tyreSerial.toLowerCase().includes(q);
+          const m3 = j.customerName.toLowerCase().includes(q);
+          const m4 = j.brand.toLowerCase().includes(q);
+          if (!m1 && !m2 && !m3 && !m4) return false;
+        }
+        return true;
+      });
+
+      tbody.innerHTML = filtered.map(job => {
+        const isScrap = job.status === 'SCRAP';
+        const isReady = job.status === 'READY_FOR_DELIVERY';
+        const procBadge = job.processType === 'ONLY_VC' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">ONLY VC</span>' :
+                          job.processType === 'ONLY_RT' ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">ONLY RT</span>' :
+                          '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">DOUBLE PROCESS</span>';
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+            <td class="py-3 px-4">
+              <div class="font-mono font-bold text-slate-900 dark:text-white">${job.jobNo}</div>
+              <div class="text-[10px] text-blue-600 font-mono">S/N: ${job.tyreSerial}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-semibold text-slate-800 dark:text-slate-200">${job.customerName}</div>
+              <div class="text-[10px] text-slate-500">${job.fleetId || job.customerPhone}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-bold text-slate-800 dark:text-slate-200">${job.brand}</div>
+              <div class="text-[10px] text-slate-500">${job.size}</div>
+            </td>
+            <td class="py-3 px-4">${procBadge}</td>
+            <td class="py-3 px-4">
+              <span class="font-bold text-[11px] ${isScrap ? 'text-rose-600' : isReady ? 'text-emerald-600' : 'text-slate-700 dark:text-slate-300'}">
+                ● ${isScrap ? 'SCRAP' : job.currentStage.replace('_', ' ')}
+              </span>
+            </td>
+            <td class="py-3 px-4 font-mono text-slate-500">${job.targetDeliveryDate}</td>
+            <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 dark:text-white">₹${job.estimatedPrice.toLocaleString()}</td>
+            <td class="py-3 px-4 text-center">
+              <button onclick="openPrintModal('${job.id}')" class="p-1.5 text-slate-500 hover:text-blue-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800" title="Print Certificate">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function renderChamberBatches() {
+      const container = document.getElementById('chamberBatchesGrid');
+      container.innerHTML = state.curingBatches.map(b => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3 shadow-sm">
+          <div class="flex justify-between items-center">
+            <span class="font-mono font-bold text-sm text-slate-900 dark:text-white">${b.batchNo}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${b.status === 'CURING' ? 'bg-purple-100 text-purple-800 animate-pulse' : 'bg-slate-100 text-slate-700'}">${b.status}</span>
+          </div>
+          <h4 class="font-bold text-xs text-slate-800 dark:text-slate-200">${b.chamberName}</h4>
+          <div class="grid grid-cols-2 gap-2 text-center text-xs">
+            <div class="p-2 bg-slate-50 dark:bg-slate-800 rounded">
+              <span class="text-[10px] text-slate-400 block">Chamber Temp</span>
+              <strong class="text-sm font-mono">${b.currentTempC}°C</strong>
+            </div>
+            <div class="p-2 bg-slate-50 dark:bg-slate-800 rounded">
+              <span class="text-[10px] text-slate-400 block">Pressure</span>
+              <strong class="text-sm font-mono">${b.currentPressureBar} bar</strong>
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-500">Loaded Tyres: <strong>${b.tyreIds.length} / ${b.capacity} Tyres</strong></div>
+        </div>
+      `).join('');
+    }
+
+    function renderInventory() {
+      const container = document.getElementById('inventoryGrid');
+      container.innerHTML = state.inventory.map(item => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="font-mono text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-bold">${item.code}</span>
+              <h4 class="font-bold text-xs text-slate-900 dark:text-white mt-1">${item.name}</h4>
+            </div>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">${item.process}</span>
+          </div>
+          <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-2.5 rounded text-xs">
+            <span class="text-slate-500">Available:</span>
+            <span class="font-mono font-bold text-slate-900 dark:text-white">${item.stock} ${item.unit}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Technician Workstation View Rendering
+    function filterTechJobs() {
+      renderTechnicianView();
+    }
+
+    function renderTechnicianView() {
+      const filter = document.getElementById('techStationFilter').value;
+      const techJobs = state.jobs.filter(j => j.status === 'IN_PROGRESS' && (filter === 'ALL' || j.currentStage === filter));
+      document.getElementById('techQueueCount').textContent = techJobs.length;
+
+      const queueList = document.getElementById('techQueueList');
+      queueList.innerHTML = techJobs.map(job => `
+        <div 
+          onclick="selectTechJob('${job.id}')" 
+          class="p-3.5 rounded-xl border cursor-pointer transition ${state.selectedTechJobId === job.id ? 'border-purple-600 bg-purple-50/60 dark:bg-purple-950/40 shadow-xs' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'}"
+        >
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-mono font-bold text-xs text-slate-900 dark:text-white">${job.jobNo}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${job.processType === 'ONLY_VC' ? 'bg-blue-100 text-blue-800' : job.processType === 'ONLY_RT' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'}">${job.processType.replace('_', ' ')}</span>
+          </div>
+          <div class="font-semibold text-xs text-slate-800 dark:text-slate-200">${job.brand} (${job.size})</div>
+          <div class="text-[10px] text-slate-500 mt-1 flex justify-between">
+            <span>S/N: <strong class="font-mono">${job.tyreSerial}</strong></span>
+            <span class="font-bold text-purple-600">${job.currentStage.replace('_', ' ')}</span>
+          </div>
+        </div>
+      `).join('');
+
+      renderTechActionPanel();
+      lucide.createIcons();
+    }
+
+    function selectTechJob(id) {
+      state.selectedTechJobId = id;
+      renderTechnicianView();
+    }
+
+    function renderTechActionPanel() {
+      const job = state.jobs.find(j => j.id === state.selectedTechJobId) || state.jobs[0];
+      const panel = document.getElementById('techActionPanel');
+      if (!job) {
+        panel.innerHTML = '<div class="p-6 text-center text-slate-400">No tyre selected.</div>';
+        return;
+      }
+
+      panel.innerHTML = `
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <!-- Job Details Header -->
+          <div class="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-base text-slate-900 dark:text-white">${job.jobNo}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 font-bold">${job.processType}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 font-bold">Stage: ${job.currentStage}</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">
+                ${job.brand} • Size: ${job.size} • S/N: <strong class="font-mono text-blue-600">${job.tyreSerial}</strong>
+              </p>
+            </div>
+            <button onclick="openPrintModal('${job.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-xs font-semibold rounded-lg flex items-center gap-1">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print Job Card
+            </button>
+          </div>
+
+          <!-- Parameter Entry Form -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border">
+              <label class="block text-slate-500 text-[10px] uppercase font-bold mb-1">Buffed Circumference (mm)</label>
+              <input type="number" id="techParamCirc" value="${job.metrics.buffedCircumferenceMm || 3180}" class="w-full px-2 py-1 rounded border font-mono font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800" />
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border">
+              <label class="block text-slate-500 text-[10px] uppercase font-bold mb-1">Cushion Gum Batch #</label>
+              <input type="text" id="techParamGum" value="${job.metrics.cushionGumBatch || 'CG-2026-99'}" class="w-full px-2 py-1 rounded border font-mono font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800" />
+            </div>
+            <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/60 border">
+              <label class="block text-slate-500 text-[10px] uppercase font-bold mb-1">Final Tread Depth (mm)</label>
+              <input type="number" step="0.1" id="techParamDepth" value="${job.metrics.finalTreadDepthMm || 15.0}" class="w-full px-2 py-1 rounded border font-mono font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-800" />
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
+            <button onclick="scrapTyre('${job.id}')" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold text-xs rounded-lg border border-rose-300 flex items-center gap-1.5">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Mark Scrap & Quarantine
+            </button>
+
+            <button onclick="advanceStage('${job.id}')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs rounded-lg shadow flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i> Pass & Advance to Next Stage
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function advanceStage(jobId) {
+      const job = state.jobs.find(j => j.id === jobId);
+      if (!job) return;
+
+      const stages = ['INITIAL_INSPECTION', 'BUFFING', 'SKIVING_REPAIR', 'SECTION_CURE', 'BUILDING', 'CURING', 'FINAL_QC', 'COMPLETED'];
+      let currIdx = stages.indexOf(job.currentStage);
+      if (currIdx < stages.length - 1) {
+        job.currentStage = stages[currIdx + 1];
+        if (job.currentStage === 'FINAL_QC') {
+          job.status = 'READY_FOR_DELIVERY';
+        }
+      }
+      renderAll();
+    }
+
+    function scrapTyre(jobId) {
+      const reason = prompt('Enter RMA Non-Conformance Reason for Scrapping:');
+      if (!reason) return;
+      const job = state.jobs.find(j => j.id === jobId);
+      if (job) {
+        job.status = 'SCRAP';
+        job.rejectReason = reason;
+        job.rejectStage = job.currentStage;
+      }
+      renderAll();
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function renderAll() {
+      renderKPIs();
+      renderStageFunnel();
+      renderJobsTable();
+      renderChamberBatches();
+      renderInventory();
+      renderTechnicianView();
+    }
+
+    // Startup Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

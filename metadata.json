@@ -1,0 +1,7 @@
+{
+  "name": "Tyre Retreading Unit ERP",
+  "description": "Workshop ERP for tyre retreading plants managing Only VC, Only RT, and Double Process workflows with technician shop-floor execution and supervisor plant controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
